@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Smart OPD</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            display: flex;
+            min-height: 100vh;
+            background-color: #f0f4f8;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background-color: #1E90FF;
+            color: white;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            padding-top: 20px;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.5em;
+        }
+
+        .sidebar a {
+            padding: 15px 25px;
+            color: white;
+            text-decoration: none;
+            font-size: 1.1em;
+            display: block;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar a:hover {
+            background-color: #1874CD;
+            cursor: pointer;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex-grow: 1;
+            padding: 30px;
+        }
+
+        /* Header */
+        .header {
+            font-size: 2em;
+            font-weight: bold;
+            color: #1E90FF;
+            margin-bottom: 20px;
+        }
+
+        /* Cards with Circular Progress */
+        .cards {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            flex: 1;
+            min-width: 200px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            position: relative;
+        }
+
+        .card h3 {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            color: #1E90FF;
+        }
+
+        .circle-progress {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: conic-gradient(#1E90FF 0deg, #e6e6e6 0deg 360deg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 15px auto;
+            font-weight: bold;
+            font-size: 1em;
+            color: #333;
+        }
+
+        .card p {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        table th, table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        table th {
+            background-color: #1E90FF;
+            color: white;
+        }
+
+        table tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        @media(max-width: 900px) {
+            .cards {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 200px;
+            }
+        }
+
+        @media(max-width: 600px) {
+            .sidebar {
+                display: none; /* hide sidebar on small devices */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>Admin Panel</h2>
+        <a href="/admin">Dashboard</a>
+        <a href="#">Manage Doctors</a>
+        <a href="#">Manage Patients</a>
+        <a href="/logout">Logout</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">Admin Dashboard</div>
+
+        <!-- Cards with Circular Progress -->
+        <div class="cards">
+            <div class="card">
+                <h3>Total Doctors</h3>
+                <div class="circle-progress" id="doctorProgress">0%</div>
+                <p id="doctorText">0 / 30</p>
+            </div>
+            <div class="card">
+                <h3>Total Patients</h3>
+                <div class="circle-progress" id="patientProgress">0%</div>
+                <p id="patientText">0 / 150</p>
+            </div>
+            <div class="card">
+                <h3>Tokens Today</h3>
+                <div class="circle-progress" id="tokenProgress">0%</div>
+                <p id="tokenText">0 / 100</p>
+            </div>
+        </div>
+
+        <!-- Upcoming Tokens Table -->
+        <h3>Upcoming Tokens</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Token No</th>
+                    <th>Patient Name</th>
+                    <th>Doctor</th>
+                    <th>Time</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>Rutuja Kale</td>
+                    <td>Dr. Sharma</td>
+                    <td>10:00 AM</td>
+                    <td>Waiting</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Shrawni Batwe</td>
+                    <td>Dr. Mehta</td>
+                    <td>10:15 AM</td>
+                    <td>Waiting</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>Yash Thakre</td>
+                    <td>Dr. Gupta</td>
+                    <td>10:30 AM</td>
+                    <td>Waiting</td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+    <script>
+        // Example values
+        const doctors = 26;
+        const maxDoctors = 30;
+        const patients = 120;
+        const maxPatients = 150;
+        const tokens = 75;
+        const maxTokens = 100;
+
+        function animateProgress(elementId, value, max, textId, duration = 1000) {
+            const element = document.getElementById(elementId);
+            const textElement = document.getElementById(textId);
+            let start = null;
+
+            function step(timestamp) {
+                if (!start) start = timestamp;
+                const progress = Math.min((timestamp - start) / duration, 1);
+                const currentValue = Math.round(progress * value);
+                const percent = Math.round((currentValue / max) * 100);
+                const deg = (percent / 100) * 360;
+                element.style.background = `conic-gradient(#1E90FF 0deg ${deg}deg, #e6e6e6 ${deg}deg 360deg)`;
+                element.innerText = percent + '%';
+                textElement.innerText = `${currentValue} / ${max}`;
+                if (progress < 1) {
+                    requestAnimationFrame(step);
+                }
+            }
+
+            requestAnimationFrame(step);
+        }
+
+        // Animate all progress bars
+        animateProgress('doctorProgress', doctors, maxDoctors, 'doctorText');
+        animateProgress('patientProgress', patients, maxPatients, 'patientText');
+        animateProgress('tokenProgress', tokens, maxTokens, 'tokenText');
+    </script>
+
+</body>
+</html>

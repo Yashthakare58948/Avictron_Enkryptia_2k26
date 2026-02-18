@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Patient Dashboard - Smart OPD</title>
+<style>
+* {margin:0;padding:0;box-sizing:border-box;font-family:'Arial',sans-serif;}
+body {display:flex;min-height:100vh;background-color:#f0f4f8;transition:all 0.3s;}
+/* Sidebar */
+.sidebar {width:220px;background-color:#1E90FF;color:white;flex-shrink:0;display:flex;flex-direction:column;padding-top:20px;}
+.sidebar h2 {text-align:center;margin-bottom:30px;font-size:1.5em;}
+.sidebar a {padding:15px 20px;color:white;text-decoration:none;font-size:1.1em;display:block;transition:all 0.3s ease;}
+.sidebar a:hover {background-color:#1874CD;cursor:pointer;}
+/* Main Content */
+.main-content {flex-grow:1;padding:30px;}
+.header {font-size:2em;font-weight:bold;color:#1E90FF;margin-bottom:20px;}
+
+/* Search Bar */
+.search-bar-container {width:100%;margin-bottom:20px;display:flex;justify-content:center;position:relative;}
+.search-container {width:100%;max-width:100%;display:flex;align-items:center;gap:10px;}
+.search-container input {width:100%;padding:10px 12px;border-radius:8px;border:1px solid #ccc;font-size:1em;}
+.search-icon {font-size:1.3em;color:#1E90FF;cursor:pointer;}
+#searchResults {position:absolute;top:45px;width:98%;background:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.15);z-index:10;max-height:250px;overflow-y:auto;animation:fadeIn 0.3s ease;}
+.result-card {padding:10px 15px;border-bottom:1px solid #eee;cursor:pointer;transition:background 0.3s, transform 0.3s;}
+.result-card:hover {background:#e6f0ff; transform:scale(1.02);}
+@keyframes fadeIn {from{opacity:0;}to{opacity:1;}}
+
+/* Stats */
+.stats {display:flex;gap:20px;flex-wrap:wrap;margin-bottom:30px;}
+.stat-card {flex:1;min-width:200px;background-color:white;padding:20px;border-radius:15px;box-shadow:0 5px 15px rgba(0,0,0,0.1);text-align:center;transition:transform 0.3s;}
+.stat-card:hover {transform:scale(1.05);}
+.stat-card h3 {font-size:1.2em;margin-bottom:10px;color:#1E90FF;}
+.stat-card p {font-size:2em;font-weight:bold;}
+
+/* Emergency & Ambulance */
+.emergency-section {margin-bottom:30px;}
+.emergency-card {flex:1;min-width:200px;background:white;padding:20px;border-radius:15px;box-shadow:0 5px 15px rgba(0,0,0,0.1);text-align:center;transition:transform 0.3s, box-shadow 0.3s;cursor:pointer;}
+.emergency-card:hover {transform:scale(1.05); box-shadow:0 8px 20px rgba(0,0,0,0.2);}
+.emergency-card h4 {color:#1E90FF; margin-bottom:10px;}
+.emergency-card p {font-size:0.9em; color:#555; margin-bottom:10px;}
+.emergency-card button {padding:10px 15px;border:none;border-radius:8px;cursor:pointer;transition:all 0.3s;}
+.emergency-card button:hover {opacity:0.9;}
+
+/* Booking Form */
+.booking-form {background-color:white;padding:25px;border-radius:15px;box-shadow:0 5px 15px rgba(0,0,0,0.1);margin-bottom:15px;}
+.booking-form h3 {color:#1E90FF;margin-bottom:15px;}
+.booking-inputs {display:flex;gap:10px;flex-wrap:wrap;}
+.booking-inputs input, .booking-inputs select {padding:10px 12px;margin:5px 0;border-radius:8px;border:1px solid #ccc;font-size:1em;flex:1;}
+.booking-form button {width:100%;padding:12px;margin-top:10px;border:none;border-radius:10px;background-color:#1E90FF;color:white;font-size:1.2em;font-weight:bold;cursor:pointer;transition:all 0.3s ease;}
+.booking-form button:hover {background-color:#1874CD;}
+#conflictMsg {margin-top:10px;color:red;font-weight:bold;}
+
+/* Table */
+table {width:100%;border-collapse:collapse;background-color:white;border-radius:10px;overflow:hidden;box-shadow:0 5px 15px rgba(0,0,0,0.1);transition:all 0.3s;margin-bottom:30px;}
+table th, table td {padding:12px;text-align:left;border-bottom:1px solid #ddd;}
+table th {background-color:#1E90FF;color:white;}
+table tr:hover {background-color:#f1f1f1;}
+.cancel-btn {padding:5px 10px;border:none;border-radius:5px;background:red;color:white;cursor:pointer;}
+.cancel-btn:disabled {background:#ccc;cursor:not-allowed;}
+.completed-row, .canceled-row {background:#e0e0e0;}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+    <h2>Patient Panel</h2>
+    <a href="/patient">Dashboard</a>
+    <a href="#">Book Appointment</a>
+    <a href="#">My Appointments</a>
+    <a href="/logout">Logout</a>
+</div>
+
+<div class="main-content">
+    <div class="header">Patient Dashboard</div>
+
+    <!-- Search Bar -->
+    <div class="search-bar-container">
+        <div class="search-container">
+            <input type="text" id="searchDoctor" placeholder="Search specialist e.g. Heart, Brain, Child" onkeyup="searchDoctors()" onfocus="showPreviousSuggestions()">
+            <span class="search-icon">&#128269;</span>
+        </div>
+        <div id="searchResults"></div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats">
+        <div class="stat-card"><h3>Total</h3><p id="totalAppointments">0</p></div>
+        <div class="stat-card"><h3>Completed</h3><p id="completedAppointments">0</p></div>
+        <div class="stat-card"><h3>Canceled</h3><p id="canceledAppointments">0</p></div>
+        <div class="stat-card"><h3>Pending</h3><p id="pendingAppointments">0</p></div>
+    </div>
+
+    <!-- Health Tips -->
+    <div class="health-tips" style="margin-bottom:20px;background:#fff;padding:15px;border-radius:12px;box-shadow:0 5px 15px rgba(0,0,0,0.05);">
+        <h3 style="color:#1E90FF;">Daily Health Tips</h3>
+        <p id="healthTip" style="font-size:1em;color:#555;">Stay hydrated and take regular breaks from screen time!</p>
+    </div>
+
+    <!-- Quick Book Buttons -->
+    <div style="margin-bottom:20px;">
+        <button onclick="quickBook('Dr. Sharma')" style="padding:10px 15px;background:#1E90FF;color:white;border:none;border-radius:8px;margin-right:10px;cursor:pointer;">Quick Book Dr. Sharma</button>
+        <button onclick="quickBook('Dr. Mehta')" style="padding:10px 15px;background:#1E90FF;color:white;border:none;border-radius:8px;margin-right:10px;cursor:pointer;">Quick Book Dr. Mehta</button>
+        <button onclick="quickBook('Dr. Gupta')" style="padding:10px 15px;background:#1E90FF;color:white;border:none;border-radius:8px;cursor:pointer;">Quick Book Dr. Gupta</button>
+    </div>
+
+    <!-- Booking Form -->
+    <div class="booking-form">
+        <h3>Book an Appointment</h3>
+        <div class="booking-inputs" style="flex-direction:column;">
+            <input type="text" id="patientName" placeholder="Patient Name" value="XYZ">
+            <input type="text" id="patientNumber" placeholder="Patient WhatsApp Number (+91xxxxxxxxxx)">
+            <select id="doctorSelect">
+                <option value="">Select Doctor</option>
+                <option value="Dr. Sharma">Dr. Sharma - Heart Specialist</option>
+                <option value="Dr. Mehta">Dr. Mehta - Brain Specialist</option>
+                <option value="Dr. Gupta">Dr. Gupta - Child Specialist</option>
+            </select>
+            <div style="display:flex;gap:10px;">
+                <input type="date" id="appointmentDate" style="flex:1;">
+                <input type="time" id="appointmentTime" style="flex:1;">
+            </div>
+        </div>
+        <button onclick="bookAppointment()">Book Appointment</button>
+        <div id="conflictMsg"></div>
+    </div>
+
+    <!-- Medical Reports Section -->
+    <div class="booking-form">
+        <h3>Medical Reports / Upload</h3>
+        <input type="file" id="reportUpload" multiple>
+        <button onclick="viewReports()" style="margin-top:10px;">View Uploaded Reports</button>
+        <div id="reportsList" style="margin-top:10px;"></div>
+    </div>
+
+    <!-- Mini Calendar -->
+    <div style="margin-bottom:20px;">
+        <h3 style="color:#1E90FF;">Appointment Calendar</h3>
+        <input type="date" id="calendarDate" onchange="filterCalendar()" style="padding:8px;border-radius:8px;border:1px solid #ccc;">
+        <div id="calendarAppointments" style="margin-top:10px;"></div>
+    </div>
+
+    <!-- All Appointments Table -->
+    <h3>All Appointments</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Patient</th>
+                <th>Doctor</th>
+                <th>Date & Time</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="appointmentTable">
+            <tr class="completed-row">
+                <td>1</td><td>XYZ</td><td>Dr. Sharma</td><td>10-02-2026 09:00</td><td>Completed</td><td><button class="cancel-btn" disabled>Cancel</button></td>
+            </tr>
+            <tr class="completed-row">
+                <td>2</td><td>XYZ</td><td>Dr. Mehta</td><td>11-02-2026 10:00</td><td>Completed</td><td><button class="cancel-btn" disabled>Cancel</button></td>
+            </tr>
+            <tr class="completed-row">
+                <td>3</td><td>XYZ</td><td>Dr. Gupta</td><td>12-02-2026 11:00</td><td>Completed</td><td><button class="cancel-btn" disabled>Cancel</button></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Emergency & Ambulance Section -->
+    <div class="emergency-section">
+        <h3 style="color:#1E90FF;margin-bottom:15px;">Emergency & Ambulance</h3>
+        <div class="emergency-cards" style="display:flex;gap:20px;flex-wrap:wrap;">
+            <div class="emergency-card" onclick="callEmergency()">
+                <h4>Emergency Call</h4>
+                <p>Call local emergency services immediately.</p>
+                <button style="background:red;color:white;">Call Now</button>
+            </div>
+            <div class="emergency-card" onclick="bookAmbulance()">
+                <h4>Book Ambulance</h4>
+                <p>Request ambulance for patient transport.</p>
+                <button style="background:#1E90FF;color:white;">Request</button>
+            </div>
+            <div class="emergency-card" onclick="openMap()">
+                <h4>Nearby Hospitals</h4>
+                <p>Locate nearest hospitals and clinics.</p>
+                <button style="background:#1E90FF;color:white;">Open Map</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+let appointmentCount = 4;
+const doctors = [
+    {name:"Dr. Sharma",specialty:"heart"},
+    {name:"Dr. Mehta",specialty:"brain"},
+    {name:"Dr. Gupta",specialty:"child"}
+];
+let previousSearches = ["heart","brain","child","Dr. Sharma","Dr. Mehta","Dr. Gupta"];
+let uploadedReports = [];
+
+// Health Tips Rotator
+const healthTips = [
+    "Stay hydrated and take breaks from screen time.",
+    "Walk 15 minutes after lunch to aid digestion.",
+    "Include fruits and vegetables in your daily diet.",
+    "Practice deep breathing exercises for stress relief."
+];
+let tipIndex = 0;
+function rotateHealthTips(){
+    document.getElementById('healthTip').innerText = healthTips[tipIndex];
+    tipIndex = (tipIndex + 1) % healthTips.length;
+}
+setInterval(rotateHealthTips, 8000);
+
+// Doctor Search
+function searchDoctors() {
+    const keyword = document.getElementById('searchDoctor').value.toLowerCase();
+    const resultsDiv = document.getElementById('searchResults');
+    resultsDiv.innerHTML = '';
+    if(keyword==='') return;
+    const filtered = doctors.filter(d=>d.specialty.includes(keyword)||d.name.toLowerCase().includes(keyword));
+    filtered.forEach(d=>{
+        const div=document.createElement('div');
+        div.className='result-card';
+        div.innerText=`${d.name} - Specialist in ${d.specialty.charAt(0).toUpperCase()+d.specialty.slice(1)}`;
+        div.onclick=()=>selectDoctor(d.name);
+        resultsDiv.appendChild(div);
+    });
+    if(filtered.length===0){
+        const div=document.createElement('div');
+        div.className='result-card';
+        div.innerText='No specialists found';
+        resultsDiv.appendChild(div);
+    }
+}
+function showPreviousSuggestions(){
+    const resultsDiv=document.getElementById('searchResults');
+    resultsDiv.innerHTML='';
+    previousSearches.forEach(s=>{
+        const div=document.createElement('div');
+        div.className='result-card';
+        div.innerText=s;
+        div.onclick=()=>selectDoctor(s.includes('Dr.')?s:s.charAt(0).toUpperCase()+s.slice(1));
+        resultsDiv.appendChild(div);
+    });
+}
+function selectDoctor(name){
+    const select=document.getElementById('doctorSelect');
+    if(name.includes('Dr.')) select.value=name;
+    else{
+        const doc=doctors.find(d=>d.specialty.toLowerCase()===name.toLowerCase());
+        if(doc) select.value=doc.name;
+    }
+    document.getElementById('searchResults').innerHTML='';
+    document.getElementById('searchDoctor').value='';
+}
+
+// Appointment Booking
+function timeToMinutes(timeStr){let [h,m]=timeStr.split(':');h=parseInt(h);m=parseInt(m);return h*60+m;}
+async function bookAppointment(){
+    const patient=document.getElementById('patientName').value.trim();
+    const patientNumber=document.getElementById('patientNumber').value.trim();
+    const doctor=document.getElementById('doctorSelect').value;
+    const date=document.getElementById('appointmentDate').value;
+    const time=document.getElementById('appointmentTime').value;
+    const msgDiv=document.getElementById('conflictMsg'); msgDiv.innerText='';
+    if(patient==="" || doctor==="" || date==="" || time==="" || patientNumber===""){msgDiv.innerText="Please fill all fields!";return;}
+    const table=document.getElementById('appointmentTable'); const newTimeMinutes=timeToMinutes(time);
+    for(let row of table.rows){
+        const rowPatient=row.cells[1].innerText;
+        const rowDateTime=row.cells[3].innerText;
+        const rowStatus=row.cells[4].innerText;
+        if(rowStatus==='Canceled') continue;
+        const [rowDate,rowTime]=rowDateTime.split(' '); let rowTimeMinutes=timeToMinutes(rowTime);
+        if(rowPatient===patient && rowDate===date && rowTimeMinutes===newTimeMinutes){msgDiv.innerText="You cannot book same time for same patient!";return;}
+        if(rowDate===date && Math.abs(rowTimeMinutes-newTimeMinutes)<20){msgDiv.innerText="Another appointment is too close. Choose 20 min later or different time.";return;}
+    }
+    const row=table.insertRow(); row.insertCell(0).innerText=appointmentCount++; row.insertCell(1).innerText=patient;
+    row.insertCell(2).innerText=doctor; row.insertCell(3).innerText=`${date} ${time}`; row.insertCell(4).innerText="Pending";
+    const actionCell=row.insertCell(5); const btn=document.createElement('button'); btn.className='cancel-btn'; btn.innerText='Cancel'; btn.onclick=()=>cancelAppointment(btn); actionCell.appendChild(btn);
+    updateStats();
+    try{
+        const message = `Hello ${patient}, your appointment with ${doctor} is confirmed on ${date} at ${time}.`;
+        const response = await fetch('http://localhost:3000/send-message', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({to:patientNumber,message})});
+        const data = await response.json();
+        if(data.success) alert('WhatsApp message sent successfully!');
+        else alert('Failed to send WhatsApp: ' + data.error);
+    }catch(e){alert('Error sending message');}
+}
+
+// Cancel Appointment
+function cancelAppointment(button){
+    const row=button.closest('tr'); row.cells[4].innerText='Canceled'; row.className='canceled-row'; button.disabled=true;
+    updateStats();
+}
+
+// Quick Book
+function quickBook(doctorName){
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('doctorSelect').value = doctorName;
+    document.getElementById('appointmentDate').value = today;
+    document.getElementById('appointmentTime').value = "10:00";
+    bookAppointment();
+}
+
+// Medical Reports
+function viewReports(){
+    const fileInput = document.getElementById('reportUpload');
+    for(const file of fileInput.files){ uploadedReports.push(file.name); }
+    const listDiv=document.getElementById('reportsList');
+    listDiv.innerHTML=uploadedReports.map(r=>`<li>${r}</li>`).join('');
+}
+
+// Mini Calendar
+function filterCalendar(){
+    const selectedDate=document.getElementById('calendarDate').value;
+    const table=document.getElementById('appointmentTable');
+    const calendarDiv=document.getElementById('calendarAppointments'); let html='';
+    for(const row of table.rows){
+        const [rowDate] = row.cells[3].innerText.split(' ');
+        if(rowDate===selectedDate){html+=`<p>${row.cells[2].innerText} with ${row.cells[1].innerText} at ${row.cells[3].innerText.split(' ')[1]} - ${row.cells[4].innerText}</p>`;}
+    }
+    calendarDiv.innerHTML=html || '<p>No appointments on this date</p>';
+}
+
+// Stats
+function updateStats(){
+    const table=document.getElementById('appointmentTable');
+    let total=0, completed=0, canceled=0, pending=0;
+    for(const row of table.rows){
+        total++; const status=row.cells[4].innerText;
+        if(status==='Completed') completed++; else if(status==='Canceled') canceled++; else pending++;
+    }
+    document.getElementById('totalAppointments').innerText=total;
+    document.getElementById('completedAppointments').innerText=completed;
+    document.getElementById('canceledAppointments').innerText=canceled;
+    document.getElementById('pendingAppointments').innerText=pending;
+}
+updateStats();
+
+// Emergency Functions
+function callEmergency(){window.location.href="tel:108";}
+function bookAmbulance(){alert('Ambulance request sent!');}
+function openMap(){window.open('https://www.google.com/maps/search/hospitals+near+me','_blank');}
+</script>
+
+</body>
+</html>

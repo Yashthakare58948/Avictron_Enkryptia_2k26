@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Smart OPD</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            background: linear-gradient(to right, #1E90FF, #63B8FF);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .signup-container {
+            background-color: #ffffff;
+            border-radius: 15px;
+            padding: 40px 50px;
+            width: 450px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        .signup-container h2 {
+            color: #1E90FF;
+            margin-bottom: 30px;
+        }
+
+        .signup-container input, .signup-container select {
+            width: 100%;
+            padding: 12px 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 1em;
+        }
+
+        .signup-container select {
+            cursor: pointer;
+            background-color: #f0f8ff;
+        }
+
+        .signup-container button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            border: none;
+            border-radius: 10px;
+            background-color: #1E90FF;
+            color: white;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .signup-container button:hover {
+            background-color: #1C86EE;
+            transform: scale(1.05);
+        }
+
+        .back-login {
+            margin-top: 20px;
+            color: #1E90FF;
+            text-decoration: underline;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        @media(max-width: 500px) {
+            .signup-container {
+                width: 90%;
+                padding: 30px 20px;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="signup-container">
+        <h2>Sign Up</h2>
+        <input type="text" placeholder="Username" id="username">
+        <input type="password" placeholder="Password" id="password">
+        <input type="password" placeholder="Confirm Password" id="confirmPassword">
+        <select id="role">
+            <option value="">Select Role</option>
+            <option value="admin">Admin</option>
+            <option value="doctor">Doctor</option>
+            <option value="patient">Patient</option>
+        </select>
+        <button onclick="signup()">Sign Up</button>
+        <a href="/">
+                <button class="back-home">Back to Homepage</button>
+        </a>
+    </div>
+
+    <script>
+        function signup(){
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const confirmPassword = document.getElementById("confirmPassword").value.trim();
+    const role = document.getElementById("role").value;
+
+    if(username === "" || password === "" || role === ""){
+        alert("Please fill all fields!");
+        return;
+    }
+
+    if(password !== confirmPassword){
+        alert("Passwords do not match!");
+        return;
+    }
+
+    fetch("/signup",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+            username:username,
+            password:password,
+            role:role
+        })
+    })
+    .then(res=>res.json())
+    .then(data=>{
+        if(data.status==="success"){
+            alert("Account created successfully!");
+            window.location.href="/loginpage";
+        }else{
+            alert("User already exists!");
+        }
+    });
+}
+
+    </script>
+
+</body>
+</html>

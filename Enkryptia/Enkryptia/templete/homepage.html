@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Home - Smart OPD</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: linear-gradient(to right, #f0f8ff, #e6f2ff);
+    color: #333;
+    overflow-x: hidden;
+    animation: fadePage 1s ease-in-out;
+}
+
+@keyframes fadePage {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* HEADER */
+header {
+    width: 100%;
+    padding: 20px 50px;
+    background-color: #1E90FF;
+    color: white;
+    font-size: 1.8em;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.header-buttons a {
+    text-decoration: none;
+}
+
+.btn {
+    padding: 10px 25px;
+    margin-left: 15px;
+    font-size: 1em;
+    font-weight: bold;
+    color: white;
+    background: linear-gradient(45deg, #0066cc, #1E90FF);
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.btn:hover {
+    transform: scale(1.08);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    background: linear-gradient(45deg, #004080, #1C86EE);
+}
+
+/* MAIN CONTAINER */
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 90px);
+}
+
+/* LEFT IMAGE */
+.left-side {
+    flex: 1;
+    min-width: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+}
+
+.left-side img {
+    width: 100%;
+    max-width: 550px;
+    border-radius: 80px;
+    transition: all 0.6s ease;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+}
+
+.left-side img:hover {
+    border-radius: 0;
+    transform: scale(1.05);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+}
+
+/* RIGHT CONTENT */
+.right-side {
+    flex: 1;
+    min-width: 50%;
+    padding: 40px;
+}
+
+.right-side h2 {
+    font-size: 2.2em;
+    color: #1E90FF;
+    margin-bottom: 20px;
+}
+
+.right-side p {
+    font-size: 1.1em;
+    line-height: 1.8;
+    margin-bottom: 20px;
+}
+
+/* WORD ANIMATION */
+.animate-text {
+    display: block;
+    min-height: 60px;
+}
+
+.word {
+    opacity: 0;
+    display: inline-block;
+    white-space: pre;
+    transform: translateY(10px);
+    animation: fadeInUp 0.4s ease forwards;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* RESPONSIVE */
+@media(max-width: 900px) {
+    .container {
+        flex-direction: column;
+    }
+
+    .left-side, .right-side {
+        min-width: 100%;
+    }
+
+    header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+    Smart OPD
+    <div class="header-buttons">
+        <a href="/loginpage"><button class="btn">Login</button></a>
+        <a href="/signuppage"><button class="btn">Sign Up</button></a>
+    </div>
+</header>
+
+<div class="container">
+
+    <div class="left-side">
+        <img src="https://media.istockphoto.com/id/1296176562/photo/caregiver-assist-senior-woman-at-home.jpg?s=612x612&w=0&k=20&c=UiHsEPH-avDi9_sK3D3BSAiEdqPr45Pg5qGOprVR5BA=" alt="Clinic Image">
+    </div>
+
+    <div class="right-side">
+        <h2>About Us</h2>
+
+        <p class="animate-text">
+            Smart OPD Management System is an intelligent digital platform designed to transform traditional outpatient department operations into a seamless and automated experience.
+        </p>
+
+        <p class="animate-text">
+            Our system dynamically manages patient tokens based on doctor availability, consultation time, and real-time session capacity to significantly reduce waiting time and overcrowding.
+        </p>
+
+        <p class="animate-text">
+            Developed by Team Avictron, Smart OPD focuses on innovation, efficiency, and patient satisfaction while creating smarter healthcare environments using modern technology.
+        </p>
+    </div>
+
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const elements = document.querySelectorAll(".animate-text");
+
+    elements.forEach((element) => {
+
+        const text = element.textContent.trim();
+        element.innerHTML = "";
+
+        const words = text.split(" ");
+        let delay = 0;
+
+        words.forEach(word => {
+            const span = document.createElement("span");
+            span.classList.add("word");
+            span.style.animationDelay = delay + "s";
+            span.textContent = word + " ";
+            element.appendChild(span);
+
+            delay += 0.06;
+        });
+
+    });
+
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Doctors - Smart OPD</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            display: flex;
+            min-height: 100vh;
+            background-color: #f0f4f8;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 220px;
+            background-color: #1E90FF;
+            color: white;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            padding-top: 20px;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.5em;
+        }
+
+        .sidebar a {
+            padding: 15px 20px;
+            color: white;
+            text-decoration: none;
+            font-size: 1.1em;
+            display: block;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar a:hover {
+            background-color: #1874CD;
+            cursor: pointer;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex-grow: 1;
+            padding: 30px;
+        }
+
+        .header {
+            font-size: 2em;
+            font-weight: bold;
+            color: #1E90FF;
+            margin-bottom: 20px;
+        }
+
+        /* Add Doctor Form */
+        .add-form {
+            background-color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .add-form input, .add-form select {
+            padding: 10px 12px;
+            margin: 5px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 1em;
+        }
+
+        .add-form button {
+            padding: 10px 20px;
+            margin-top: 10px;
+            background-color: #1E90FF;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .add-form button:hover {
+            background-color: #1874CD;
+        }
+
+        /* Doctor Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        table th, table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        table th {
+            background-color: #1E90FF;
+            color: white;
+        }
+
+        table tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .remove-btn {
+            padding: 6px 12px;
+            background-color: #FF6347;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .remove-btn:hover {
+            background-color: #e5533f;
+        }
+
+        @media(max-width: 900px) {
+            .add-form input, .add-form select {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
+
+        @media(max-width: 600px) {
+            .sidebar {
+                display: none;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>Admin Panel</h2>
+        <a href="admin.html">Dashboard</a>
+        <a href="managedr.html">Manage Doctors</a>
+        <a href="managep.html">Manage Patients</a>
+        <a href="index.html">Logout</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">Manage Doctors</div>
+
+        <!-- Add Doctor Form -->
+        <div class="add-form">
+            <h3>Add New Doctor</h3>
+            <input type="text" id="docName" placeholder="Full Name">
+            <input type="email" id="docEmail" placeholder="Email">
+            <input type="text" id="docPhone" placeholder="Phone Number">
+            <input type="text" id="docSpecialty" placeholder="Specialty">
+            <select id="docStatus">
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+            </select>
+            <br>
+            <button onclick="addDoctor()">Add Doctor</button>
+        </div>
+
+        <!-- Doctor Table -->
+        <h3>Doctor List</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Specialty</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="doctorTable">
+                <tr>
+                    <td>1</td>
+                    <td>Dr. Sharma</td>
+                    <td>sharma@example.com</td>
+                    <td>9876543210</td>
+                    <td>Cardiology</td>
+                    <td>Active</td>
+                    <td><button class="remove-btn" onclick="removeDoctor(this)">Remove</button></td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Dr. Mehta</td>
+                    <td>mehta@example.com</td>
+                    <td>9876543211</td>
+                    <td>Orthopedics</td>
+                    <td>Active</td>
+                    <td><button class="remove-btn" onclick="removeDoctor(this)">Remove</button></td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+    <script>
+        let doctorID = 3; // Next doctor ID
+
+        function addDoctor() {
+            const name = document.getElementById('docName').value;
+            const email = document.getElementById('docEmail').value;
+            const phone = document.getElementById('docPhone').value;
+            const specialty = document.getElementById('docSpecialty').value;
+            const status = document.getElementById('docStatus').value;
+
+            if(name === "" || email === "" || phone === "" || specialty === "" || status === "") {
+                alert("Please fill all fields!");
+                return;
+            }
+
+            const table = document.getElementById('doctorTable');
+            const row = table.insertRow();
+            row.insertCell(0).innerText = doctorID++;
+            row.insertCell(1).innerText = name;
+            row.insertCell(2).innerText = email;
+            row.insertCell(3).innerText = phone;
+            row.insertCell(4).innerText = specialty;
+            row.insertCell(5).innerText = status;
+            const actionCell = row.insertCell(6);
+            const btn = document.createElement("button");
+            btn.innerText = "Remove";
+            btn.className = "remove-btn";
+            btn.onclick = function() { removeDoctor(btn); };
+            actionCell.appendChild(btn);
+
+            // Clear form
+            document.getElementById('docName').value = "";
+            document.getElementById('docEmail').value = "";
+            document.getElementById('docPhone').value = "";
+            document.getElementById('docSpecialty').value = "";
+            document.getElementById('docStatus').value = "Active";
+
+            alert("Doctor added successfully!");
+        }
+
+        function removeDoctor(btn) {
+            const row = btn.closest('tr');
+            const name = row.cells[1].innerText;
+            if(confirm(`Are you sure you want to remove ${name}?`)) {
+                row.remove();
+            }
+        }
+    </script>
+
+</body>
+</html>

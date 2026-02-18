@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Patients - Smart OPD</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            display: flex;
+            min-height: 100vh;
+            background-color: #f0f4f8;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 220px;
+            background-color: #1E90FF;
+            color: white;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            padding-top: 20px;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.5em;
+        }
+
+        .sidebar a {
+            padding: 15px 20px;
+            color: white;
+            text-decoration: none;
+            font-size: 1.1em;
+            display: block;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar a:hover {
+            background-color: #1874CD;
+            cursor: pointer;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex-grow: 1;
+            padding: 30px;
+        }
+
+        .header {
+            font-size: 2em;
+            font-weight: bold;
+            color: #1E90FF;
+            margin-bottom: 20px;
+        }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        table th, table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        table th {
+            background-color: #1E90FF;
+            color: white;
+        }
+
+        table tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .remove-btn {
+            padding: 6px 12px;
+            background-color: #FF6347;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .remove-btn:hover {
+            background-color: #e5533f;
+        }
+
+        @media(max-width: 600px) {
+            .sidebar {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>Admin Panel</h2>
+        <a href="admin.html">Dashboard</a>
+        <a href="managedr.html">Manage Doctors</a>
+        <a href="managedr.html">Manage Patients</a>
+        <a href="index.html">Logout</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">Manage Patients</div>
+
+        <!-- Patient Table -->
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Doctor</th>
+                    <th>Appointment Date</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="patientTable">
+                <!-- Patient rows will be populated via JS -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Simulated patient database
+        const patients = [
+            {id: 1, name: "Rutuja Kale", email: "rutuja@example.com", phone: "9876543210", doctor: "Dr. Sharma", date: "18-02-2026", status: "Pending"},
+            {id: 2, name: "Shrawni Batwe", email: "shrawni@example.com", phone: "9876543211", doctor: "Dr. Mehta", date: "18-02-2026", status: "Pending"},
+            {id: 3, name: "Yash Thakre", email: "yash@example.com", phone: "9876543212", doctor: "Dr. Gupta", date: "18-02-2026", status: "Pending"},
+        ];
+
+        function populatePatients() {
+            const table = document.getElementById("patientTable");
+            table.innerHTML = ""; // clear table
+
+            patients.forEach(patient => {
+                const row = table.insertRow();
+                row.insertCell(0).innerText = patient.id;
+                row.insertCell(1).innerText = patient.name;
+                row.insertCell(2).innerText = patient.email;
+                row.insertCell(3).innerText = patient.phone;
+                row.insertCell(4).innerText = patient.doctor;
+                row.insertCell(5).innerText = patient.date;
+                row.insertCell(6).innerText = patient.status;
+
+                const actionCell = row.insertCell(7);
+                const btn = document.createElement("button");
+                btn.innerText = "Remove";
+                btn.className = "remove-btn";
+                btn.onclick = function() { removePatient(patient.id); };
+                actionCell.appendChild(btn);
+            });
+        }
+
+        function removePatient(id) {
+            if(confirm("Are you sure you want to remove this patient?")) {
+                const index = patients.findIndex(p => p.id === id);
+                if(index !== -1) {
+                    patients.splice(index, 1);
+                    populatePatients();
+                }
+            }
+        }
+
+        // Initial population
+        populatePatients();
+    </script>
+
+</body>
+</html>
